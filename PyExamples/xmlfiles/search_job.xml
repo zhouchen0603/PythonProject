@@ -1,0 +1,228 @@
+<tests>
+    <desc>Verifying Search endpoints that will be exposed (SPL-26133)</desc>
+
+    <auth mode="digest">
+        <username>admin</username>
+        <password>changeme</password>
+    </auth>
+
+    <!-- /services/search/jobs -->
+    <!-- Note: Order of tests must be kept for all tests to be valid -->
+    <test>
+      <request>
+        <method>POST</method>
+        <path>/services/search/jobs</path>
+        <form>
+          <arg name="search">search index=_internal</arg>
+          <arg name="latest_time">-2h</arg>
+        </form>
+      </request>
+      <response>
+        <status>201</status>
+        <xml>
+          <xpath save="sid" selector="//sid"/>
+        </xml>
+      </response>
+      <desc>earliest time &lt; latest time</desc>
+    </test>
+
+    <test>
+        <desc>Getting a list of jobs</desc>
+        <request>
+            <method>GET</method>
+            <path>/services/search/jobs</path>
+        </request>
+
+        <response>
+            <status>200</status>
+            <headers><header name="content-type">text/xml; charset=UTF-8</header></headers>
+            <xml>
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='sid']" />
+            </xml>
+        </response>
+    </test>
+
+    <test>
+        <desc>Checking correct response properties</desc>
+        <request>
+            <method>GET</method>
+            <path>/services/search/jobs</path>
+        </request>
+
+        <response>
+            <status>200</status>
+            <headers><header name="content-type">text/xml; charset=UTF-8</header></headers>
+            <xml>
+                <xpath selector="//atom:feed/atom:id" />
+                <xpath selector="//atom:feed/atom:generator" />
+                <xpath selector="//atom:feed/atom:author" />
+                <xpath selector="//atom:feed/atom:entry/atom:title" />
+                <xpath selector="//atom:feed/atom:entry/atom:id" />
+                <xpath selector="//atom:feed/atom:entry/atom:updated" />
+                <xpath selector="//atom:feed/atom:entry/atom:author" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='cursorTime']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='delegate']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='doneProgress']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='dropCount']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='earliestTime']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='eventAvailableCount']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='eventCount']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='eventFieldCount']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='eventIsStreaming']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='eventIsTruncated']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='eventSearch']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='eventSorting']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='isDone']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='isFailed']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='isFinalized']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='isPaused']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='isPreviewEnabled']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='isRealTimeSearch']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='isSaved']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='isSavedSearch']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='isZombie']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='keywords']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='label']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='indexLatestTime']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='priority']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='remoteSearch']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='reportSearch']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='resultCount']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='resultIsStreaming']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='resultPreviewCount']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='runDuration']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='scanCount']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='sid']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='statusBuckets']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='ttl']" />
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='messages']" />
+            </xml>
+        </response>
+    </test>
+
+    <test>
+        <desc>Starting a new search job without the required argument behaves like a GET</desc>
+        <request>
+            <method>POST</method>
+            <path>/services/search/jobs</path>
+            <form></form>
+        </request>
+
+        <response>
+            <status>200</status>
+            <headers><header name="content-type">text/xml; charset=UTF-8</header></headers>
+            <xml>
+                <xpath selector="//atom:feed/atom:entry/atom:content/s:dict/s:key[@name='sid']" />
+            </xml>
+        </response>
+    </test>
+
+    <test>
+        <desc>Starting a new search job without beginning with the word search</desc>
+        <request>
+            <method>POST</method>
+            <path>/services/search/jobs</path>
+            <form>
+                 <arg name="search">*</arg>
+            </form>
+        </request>
+
+        <response>
+            <status>400</status>
+            <headers><header name="content-type">text/xml; charset=UTF-8</header></headers>
+            <xml>
+                <xpath selector="//msg[@type='ERROR']"></xpath>
+            </xml>
+        </response>
+    </test>
+
+    <test>
+        <desc>Starting a new search with unbalanced quotes</desc>
+        <request>
+            <method>POST</method>
+            <path>/services/search/jobs</path>
+            <form>
+                 <arg name="search">search index="_audit</arg>
+            </form>
+        </request>
+
+        <response>
+            <status>400</status>
+            <headers><header name="content-type">text/xml; charset=UTF-8</header></headers>
+            <xml>
+                <xpath selector="//msg[@type='ERROR']"></xpath>
+            </xml>
+        </response>
+    </test>
+
+    <test>
+        <desc>Starting a valid new search</desc>
+        <request>
+            <method>POST</method>
+            <path>/services/search/jobs</path>
+            <form>
+                 <arg name="search">search *</arg>
+            </form>
+        </request>
+
+        <response>
+            <status>201</status>
+            <headers><header name="content-type">text/xml; charset=UTF-8</header></headers>
+            <xml>
+                <xpath selector="//response/sid"></xpath>
+            </xml>
+        </response>
+    </test>
+
+    <test>
+        <desc>Using DELETE on /services/search/jobs should return a method not allowed</desc>
+        <request>
+            <method>DELETE</method>
+            <path>/services/search/jobs</path>
+        </request>
+
+        <response>
+            <status>405</status>
+            <headers><header name="content-type">text/xml; charset=UTF-8</header></headers>
+        </response>
+    </test>
+
+    <test>
+        <desc>Using PUT on /services/search/jobs should return a method not allowed</desc>
+        <request>
+            <method>PUT</method>
+            <path>/services/search/jobs</path>
+        </request>
+
+        <response>
+            <status>405</status>
+            <headers><header name="content-type">text/xml; charset=UTF-8</header></headers>
+        </response>
+    </test>
+
+    <test>
+        <desc>Checking a valid search with oneshot mode</desc>
+        <request>
+            <method>POST</method>
+            <path>/services/search/jobs</path>
+            <form>
+                 <arg name="search">search index=_internal | head 1</arg>
+                 <arg name="exec_mode">oneshot</arg>
+            </form>
+        </request>
+
+        <response>
+            <status>200</status>
+            <headers><header name="content-type">text/xml; charset=UTF-8</header></headers>
+            <xml>
+                <xpath selector="//results/result/field[@k='_raw']" />
+                <xpath selector="//results/result/field[@k='_time']" />
+                <xpath selector="//results/result/field[@k='host']" />
+                <xpath selector="//results/result/field[@k='index']" />
+                <xpath selector="//results/result/field[@k='source']" />
+                <xpath selector="//results/result/field[@k='sourcetype']" />
+                <xpath selector="//results/result/field[@k='splunk_server']" />
+            </xml>
+        </response>
+    </test>
+</tests>
